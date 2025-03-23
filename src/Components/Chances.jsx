@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-function Chances({ word, setChancesData, chancesData, index }) {
+function Chances({ word, setChancesData, chancesData, index, setShowWord }) {
   const [inputValue, setInputValue] = useState([
     { value: "", status: "" },
     { value: "", status: "" },
@@ -20,6 +20,7 @@ function Chances({ word, setChancesData, chancesData, index }) {
       reference.current[id + 1].focus();
     }
   };
+  const matchWord = () => {};
   const handleKeyPress = (e) => {
     if (e.key == "Backspace") {
       e.preventDefault();
@@ -53,27 +54,29 @@ function Chances({ word, setChancesData, chancesData, index }) {
         }
         let chances = [...chancesData];
         chances[index] = { ...chances[index], trialUsed: true };
-        chances[index + 1] = { ...chances[index + 1], trialUsed: false };
+        if (index < 5) {
+          chances[index + 1] = { ...chances[index + 1], trialUsed: false };
+        }
         setChancesData(chances);
       }
     }
   };
   return (
-    <div className=" " onKeyDown={handleKeyPress}>
+    <div className="grid grid-cols-5 gap-2 " onKeyDown={handleKeyPress}>
       {inputValue.map((elem, elemIndex) => (
         <input
           key={elemIndex}
           id={elemIndex}
           ref={(el) => (reference.current[elemIndex] = el)}
-          className={`w-12 h-12 border border-gray-300 ${
+          className={`border text-center border-gray-300 rounded p-4 shadow-sm focus:outline-none focus:ring focus:ring-blue-300 ${
             elem.status == "default"
-              ? "bg-gray-500"
+              ? "bg-gray-200"
               : elem.status == "present"
-              ? "bg-amber-500"
+              ? "bg-yellow-200"
               : elem.status == "positionPresent"
-              ? "bg-green-500"
+              ? "bg-green-200"
               : ""
-          } rounded text-center focus:outline-none focus:ring focus:border-blue-300`}
+          }  `}
           type="text"
           maxLength={1}
           value={elem.value}
