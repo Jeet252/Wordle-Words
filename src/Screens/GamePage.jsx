@@ -14,29 +14,114 @@ function GamePage() {
     {
       id: 1,
       trialUsed: false,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
     {
       id: 2,
       trialUsed: true,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
     {
       id: 3,
       trialUsed: true,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
     {
       id: 4,
       trialUsed: true,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
     {
       id: 5,
       trialUsed: true,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
     {
       id: 6,
       trialUsed: true,
+      input: [
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+        { value: "", status: "" },
+      ],
     },
   ]);
 
+  const handleKeyPress = (e, index) => {
+    if (/^[^a-zA-Z\s]$/.test(e.key)) {
+      e.preventDefault();
+    }
+    if (e.key == "Backspace") {
+      e.preventDefault();
+      let newInput = [...chancesData];
+      let id = parseInt(e.target.id.slice(1));
+      newInput[index].input[id].value = "";
+      setChancesData([...newInput]);
+      if (id !== index * 5 + 0 && e.target.value === "") {
+        setTimeout(() => {
+          reference.current[index * 10 + id - 1].focus();
+        }, 0);
+      }
+    }
+    if (e.key == "Enter") {
+      e.preventDefault();
+      if (!chancesData[index].input.some((value) => value.value == "")) {
+        for (let i = 0; i < 5; i++) {
+          let newInput = [...chancesData];
+          if (word.includes(chancesData[index].input[i].value)) {
+            if (word[i] == chancesData[index].input[i].value) {
+              newInput[index].input[i].status = "positionPresent";
+              setChancesData([...newInput]);
+            } else {
+              newInput[index].input[i].status = "present";
+              setChancesData([...newInput]);
+            }
+          } else {
+            newInput[index].input[i].status = "default";
+            setChancesData([...newInput]);
+          }
+        }
+        let chances = [...chancesData];
+        chances[index] = { ...chances[index], trialUsed: true };
+        if (index < 5) {
+          chances[index + 1] = { ...chances[index + 1], trialUsed: false };
+        }
+        setChancesData(chances);
+      }
+    }
+  };
   useEffect(() => {
     const date = new Date();
     const timeNow = String(date.getDate()) + "/" + String(date.getHours());
@@ -48,10 +133,11 @@ function GamePage() {
             "https://apilearning.netlify.app/.netlify/functions/api/wordle-words"
           );
           const wordData = {
-            word: response.data[Math.floor(Math.random() * (340 - 0 + 1)) + 0],
+            word: [
+              ...response.data[Math.floor(Math.random() * (340 - 0 + 1)) + 0],
+            ],
             time: String(date.getDate()) + "/" + String(date.getHours()),
           };
-          console.log("Word Data:", wordData);
           setWord(wordData);
           localStorage.setItem("WORD", JSON.stringify(wordData));
         } catch (error) {
@@ -74,28 +160,37 @@ function GamePage() {
           setInstruction={setInstruction}
           instruction={instruction}
         />
-        <div className={`grid`}>
-          {chancesData.map((elem, index) => (
+        {chancesData.map((elem, index) => (
+          <div
+            className="grid grid-cols-5 gap-2"
+            key={elem.id}
+            index={index}
+            onKeyDown={(e) => handleKeyPress(e, index)}
+          >
             <Chances
-              key={elem.id}
-              index={index}
+              inputValue={elem.input}
               chancesData={chancesData}
-              word={word.word}
+              index={index}
+              word={!word ? "loading" : word.word}
               setChancesData={setChancesData}
               setShowWord={setShowWord}
             />
-          ))}
-        </div>
+          </div>
+        ))}
 
         <div className="grid grid-cols-5 gap-2">
-          {Array.from(word.word).map((_, index) => (
-            <input
-              key={index}
-              className="border border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
-              value={showWord ? _ : "?"}
-              disabled={true}
-            />
-          ))}
+          {!word ? (
+            <h1>Loading</h1>
+          ) : (
+            word.word.map((_, index) => (
+              <input
+                key={index}
+                className="border border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
+                value={showWord ? _ : "?"}
+                disabled={true}
+              />
+            ))
+          )}
         </div>
       </div>
     </>
