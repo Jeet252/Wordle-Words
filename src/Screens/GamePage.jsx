@@ -4,6 +4,7 @@ import axios from "axios";
 import Instruction from "../Components/Instruction";
 
 function GamePage() {
+  const date = new Date();
   const reference = useRef([]);
   const [word, setWord] = useState(() => {
     const storedWord = localStorage.getItem("WORD");
@@ -80,6 +81,10 @@ function GamePage() {
     },
   ]);
 
+  const handlePlayAgain = () => {
+    localStorage.clear("WORD");
+    window.location.reload();
+  };
   const handleCheck = (correctLetters, index) => {
     if (correctLetters == 5 || index == 5) {
       let chances = [...chancesData];
@@ -142,27 +147,25 @@ function GamePage() {
     }
   };
 
+  const fetch_data = async () => {
+    try {
+      const response = await axios.get(
+        "https://apilearning.netlify.app/.netlify/functions/api/wordle-words"
+      );
+      const wordData = {
+        word: [...response.data[Math.floor(Math.random() * (340 - 0 + 1)) + 0]],
+        time: String(date.getDate()) + "/" + String(date.getHours()),
+      };
+      setWord(wordData);
+      localStorage.setItem("WORD", JSON.stringify(wordData));
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
-    const date = new Date();
     const timeNow = String(date.getDate()) + "/" + String(date.getHours());
     if (!word || word.time !== timeNow) {
-      (async () => {
-        try {
-          const response = await axios.get(
-            "https://apilearning.netlify.app/.netlify/functions/api/wordle-words"
-          );
-          const wordData = {
-            word: [
-              ...response.data[Math.floor(Math.random() * (340 - 0 + 1)) + 0],
-            ],
-            time: String(date.getDate()) + "/" + String(date.getHours()),
-          };
-          setWord(wordData);
-          localStorage.setItem("WORD", JSON.stringify(wordData));
-        } catch (error) {
-          console.log(error);
-        }
-      })();
+      fetch_data();
     }
   }, []);
 
@@ -198,19 +201,29 @@ function GamePage() {
           </div>
         ))}
 
-        <div className="grid grid-cols-5 gap-2">
+        <div className="flex  ">
           {!word ? (
-            <h1>Loading</h1>
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            </div>
           ) : (
             word.word.map((_, index) => (
               <input
                 key={index}
-                className="border border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
+                className="border mx-1.5 mt-2.5 border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
                 value={showWord ? _ : "?"}
                 disabled={true}
               />
             ))
           )}
+        </div>
+        <div className={`${showWord ? "" : "hidden"}`}>
+          <button
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4"
+            onClick={handlePlayAgain}
+          >
+            Play Again
+          </button>
         </div>
       </div>
     </>
