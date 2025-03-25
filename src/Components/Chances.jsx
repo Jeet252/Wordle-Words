@@ -1,19 +1,15 @@
 import React, { useRef } from "react";
 
-function Chances({ word, setChancesData, chancesData, index }) {
-  const reference = useRef([]);
-
+function Chances({ word, setChancesData, reference, chancesData, index }) {
   const handleChange = (e) => {
     let newInput = [...chancesData];
     let id = parseInt(e.target.id.slice(1));
-    console.log(id);
     newInput[index].input[id].value = e.target.value.toUpperCase();
     setChancesData([...newInput]);
-    if (id < index * 5 + 4) {
+    if (id < 4) {
       reference.current[index * 5 + id + 1].focus();
     }
   };
-  // const matchWord = () => {};
 
   return (
     <>

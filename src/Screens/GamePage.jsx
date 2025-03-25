@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Chances from "../Components/Chances";
 import axios from "axios";
 import Instruction from "../Components/Instruction";
 
 function GamePage() {
+  const reference = useRef([]);
   const [word, setWord] = useState(() => {
     const storedWord = localStorage.getItem("WORD");
     return storedWord ? JSON.parse(storedWord) : undefined; // Parse the stored string into an object
@@ -79,6 +80,17 @@ function GamePage() {
     },
   ]);
 
+  const handleCheck = (correctLetters, index) => {
+    if (correctLetters == 5 || index == 5) {
+      let chances = [...chancesData];
+      for (let i = 0; i < 6; i++) {
+        chances[i].trialUsed = true;
+      }
+      setChancesData([...chances]);
+      setShowWord(!showWord);
+    }
+  };
+
   const handleKeyPress = (e, index) => {
     if (/^[^a-zA-Z\s]$/.test(e.key)) {
       e.preventDefault();
@@ -89,21 +101,23 @@ function GamePage() {
       let id = parseInt(e.target.id.slice(1));
       newInput[index].input[id].value = "";
       setChancesData([...newInput]);
-      if (id !== index * 5 + 0 && e.target.value === "") {
+      if (id !== 0 && e.target.value === "") {
         setTimeout(() => {
-          reference.current[index * 10 + id - 1].focus();
+          reference.current[index * 5 + id - 1].focus();
         }, 0);
       }
     }
     if (e.key == "Enter") {
       e.preventDefault();
       if (!chancesData[index].input.some((value) => value.value == "")) {
+        let correctLetters = 0;
         for (let i = 0; i < 5; i++) {
           let newInput = [...chancesData];
-          if (word.includes(chancesData[index].input[i].value)) {
-            if (word[i] == chancesData[index].input[i].value) {
+          if (word.word.includes(chancesData[index].input[i].value)) {
+            if (word.word[i] == chancesData[index].input[i].value) {
               newInput[index].input[i].status = "positionPresent";
               setChancesData([...newInput]);
+              correctLetters += 1;
             } else {
               newInput[index].input[i].status = "present";
               setChancesData([...newInput]);
@@ -118,10 +132,16 @@ function GamePage() {
         if (index < 5) {
           chances[index + 1] = { ...chances[index + 1], trialUsed: false };
         }
+        if (index < 5)
+          setTimeout(() => {
+            reference.current[index * 5 + 5].focus();
+          }, 0);
         setChancesData(chances);
+        handleCheck(correctLetters, index);
       }
     }
   };
+
   useEffect(() => {
     const date = new Date();
     const timeNow = String(date.getDate()) + "/" + String(date.getHours());
@@ -169,6 +189,7 @@ function GamePage() {
           >
             <Chances
               inputValue={elem.input}
+              reference={reference}
               chancesData={chancesData}
               index={index}
               word={!word ? "loading" : word.word}
