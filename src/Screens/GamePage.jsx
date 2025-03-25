@@ -146,7 +146,6 @@ function GamePage() {
     const date = new Date();
     const timeNow = String(date.getDate()) + "/" + String(date.getHours());
     if (!word || word.time !== timeNow) {
-      console.log(word);
       (async () => {
         try {
           const response = await axios.get(

@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React from "react";
 
-function Chances({ word, setChancesData, reference, chancesData, index }) {
+function Chances({ setChancesData, reference, chancesData, index }) {
   const handleChange = (e) => {
     let newInput = [...chancesData];
     let id = parseInt(e.target.id.slice(1));
