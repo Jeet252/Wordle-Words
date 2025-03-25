@@ -104,9 +104,15 @@ function GamePage() {
       e.preventDefault();
       let newInput = [...chancesData];
       let id = parseInt(e.target.id.slice(1));
-      newInput[index].input[id].value = "";
-      setChancesData([...newInput]);
-      if (id !== 0 && e.target.value === "") {
+      if (e.target.value !== "") {
+        newInput[index].input[id].value = "";
+        setChancesData([...newInput]);
+        if (id !== 0) {
+          setTimeout(() => {
+            reference.current[index * 5 + id - 1].focus();
+          }, 0);
+        }
+      } else if (id !== 0) {
         setTimeout(() => {
           reference.current[index * 5 + id - 1].focus();
         }, 0);
