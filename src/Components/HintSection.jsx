@@ -19,7 +19,7 @@ export default function HintSection({ arrayOfLetter }) {
       const response = await axios.get(
         `https://apilearning.netlify.app/.netlify/functions/api/${word}/${hints}`
       );
-      console.log(response.data.word);
+
       setHintDetails(response.data.word);
       setHints(hints - 1);
       setIsLoading(false);
