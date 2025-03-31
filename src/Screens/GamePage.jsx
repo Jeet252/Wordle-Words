@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Chances from "../Components/Chances";
 import axios from "axios";
 import Instruction from "../Components/Instruction";
+import HintSection from "../Components/HintSection";
 
 function GamePage() {
   const date = new Date();
@@ -168,6 +169,7 @@ function GamePage() {
       console.log(error);
     }
   };
+
   useEffect(() => {
     const timeNow = String(date.getDate()) + "/" + String(date.getHours());
     if (!word || word.time !== timeNow) {
@@ -188,6 +190,7 @@ function GamePage() {
           setInstruction={setInstruction}
           instruction={instruction}
         />
+        <HintSection word={word} />
         {chancesData.map((elem, index) => (
           <div
             className="grid grid-cols-5 gap-2"
