@@ -3,6 +3,7 @@ import Chances from "../Components/Chances";
 import axios from "axios";
 import Instruction from "../Components/Instruction";
 import HintSection from "../Components/HintSection";
+import Loader from "../Components/Loader";
 
 function GamePage() {
   const date = new Date();
@@ -13,6 +14,7 @@ function GamePage() {
   });
   const [instruction, setInstruction] = useState(false);
   const [showWord, setShowWord] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [chancesData, setChancesData] = useState([
     {
       id: 1,
@@ -156,6 +158,7 @@ function GamePage() {
 
   const fetch_data = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         "https://apilearning.netlify.app/.netlify/functions/api/wordle-words"
       );
@@ -165,6 +168,7 @@ function GamePage() {
       };
       setWord(wordData);
       localStorage.setItem("WORD", JSON.stringify(wordData));
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -179,62 +183,68 @@ function GamePage() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <button
-          onClick={() => setInstruction(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out"
-        >
-          Instructions
-        </button>
-        <Instruction
-          setInstruction={setInstruction}
-          instruction={instruction}
-        />
-        <HintSection word={word} />
-        {chancesData.map((elem, index) => (
-          <div
-            className="grid grid-cols-5 gap-2"
-            key={elem.id}
-            index={index}
-            onKeyDown={(e) => handleKeyPress(e, index)}
-          >
-            <Chances
-              inputValue={elem.input}
-              reference={reference}
-              chancesData={chancesData}
-              index={index}
-              word={!word ? "loading" : word.word}
-              setChancesData={setChancesData}
-              setShowWord={setShowWord}
-            />
-          </div>
-        ))}
-
-        <div className="flex  ">
-          {!word ? (
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            </div>
-          ) : (
-            word.word.map((_, index) => (
-              <input
-                key={index}
-                className="border mx-1.5 mt-2.5 border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
-                value={showWord ? _ : "?"}
-                disabled={true}
-              />
-            ))
-          )}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <Loader />
         </div>
-        <div className={`${showWord ? "" : "hidden"}`}>
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-screen">
           <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4"
-            onClick={handlePlayAgain}
+            onClick={() => setInstruction(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out"
           >
-            Play Again
+            Instructions
           </button>
+          <Instruction
+            setInstruction={setInstruction}
+            instruction={instruction}
+          />
+          <HintSection arrayOfLetter={word ? word.word : "hello"} />
+          {chancesData.map((elem, index) => (
+            <div
+              className="grid grid-cols-5 gap-2"
+              key={elem.id}
+              index={index}
+              onKeyDown={(e) => handleKeyPress(e, index)}
+            >
+              <Chances
+                inputValue={elem.input}
+                reference={reference}
+                chancesData={chancesData}
+                index={index}
+                word={!word ? "loading" : word.word}
+                setChancesData={setChancesData}
+                setShowWord={setShowWord}
+              />
+            </div>
+          ))}
+
+          <div className="flex  ">
+            {!word ? (
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              </div>
+            ) : (
+              word.word.map((_, index) => (
+                <input
+                  key={index}
+                  className="border mx-1.5 mt-2.5 border-gray-300 rounded p-2 w-12 text-center focus:outline-none focus:ring focus:ring-blue-300"
+                  value={showWord ? _ : "?"}
+                  disabled={true}
+                />
+              ))
+            )}
+          </div>
+          <div className={`${showWord ? "" : "hidden"}`}>
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4"
+              onClick={handlePlayAgain}
+            >
+              Play Again
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
