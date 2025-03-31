@@ -41,9 +41,13 @@ export default function HintSection({ arrayOfLetter }) {
       {isLoading ? (
         <Loader />
       ) : (
-        <p className={`text-green-500 ${hintDetails === "" ? "hidden" : ""}`}>
-          {hintDetails}
-        </p>
+        <div
+          className={`mt-4 bg-gray-100 p-4 rounded-lg shadow-md ${
+            hintDetails === "" ? "hidden" : ""
+          }`}
+        >
+          <p className={`text-green-500 `}>{hintDetails}</p>
+        </div>
       )}
     </div>
   );
